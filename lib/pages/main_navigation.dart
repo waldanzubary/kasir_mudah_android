@@ -11,69 +11,80 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 1; // Default ke Kasir
+  int _currentIndex = 1; // default ke Kasir
 
-  final List<Widget> _pages = const [
-    ProductPage(),
-    CashierPage(),
-    TransactionHistoryPage(),
+  // JANGAN pakai const supaya page bisa rebuild
+  final List<Widget> _pages = [
+    const ProductPage(),
+    const CashierPage(),
+    const TransactionHistoryPage(),
   ];
 
-  // Palette Sesuai Brand "Toko Green"
-  final Color primaryColor = const Color(0xFF00AA5B); 
+  // Color palette
+  final Color primaryColor = const Color(0xFF00AA5B);
   final Color surfaceColor = const Color(0xFFFFFFFF);
+  final Color bgColor = const Color(0xFFF7F9FA);
   final Color textLight = const Color(0xFF6D7588);
-  final Color textDark = const Color(0xFF2E3137);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FA),
-      // Gunakan IndexedStack agar state halaman terjaga (tidak reload saat pindah tab)
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      // Navigation Bar yang solid dan bersih agar tidak menumpuk dengan konten
+      backgroundColor: bgColor,
+
+      // ⬇️ INI KUNCI AUTO REFRESH
+      body: _pages[_currentIndex],
+
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: surfaceColor,
           border: Border(
-            top: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+            top: BorderSide(
+              color: Colors.grey.withOpacity(0.12),
+              width: 1,
+            ),
           ),
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 6),
             child: BottomNavigationBar(
               currentIndex: _currentIndex,
-              onTap: (index) => setState(() => _currentIndex = index),
-              
-              // Styling
+              onTap: (index) {
+                if (_currentIndex != index) {
+                  setState(() => _currentIndex = index);
+                }
+              },
+
               type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.transparent, // Mengikut Container di atas
+              backgroundColor: Colors.transparent,
               elevation: 0,
+
               selectedItemColor: primaryColor,
               unselectedItemColor: textLight,
               selectedFontSize: 12,
               unselectedFontSize: 12,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, height: 1.5),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, height: 1.5),
-              
-              items: [
-                _buildNavItem(
-                  icon: Icons.inventory_2_outlined,
-                  activeIcon: Icons.inventory_2_rounded,
+
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w800,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.inventory_2_outlined),
+                  activeIcon: Icon(Icons.inventory_2_rounded),
                   label: 'Produk',
                 ),
-                _buildNavItem(
-                  icon: Icons.point_of_sale_outlined,
-                  activeIcon: Icons.point_of_sale_rounded,
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.point_of_sale_outlined),
+                  activeIcon: Icon(Icons.point_of_sale_rounded),
                   label: 'Kasir',
                 ),
-                _buildNavItem(
-                  icon: Icons.receipt_long_outlined,
-                  activeIcon: Icons.receipt_long_rounded,
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.receipt_long_outlined),
+                  activeIcon: Icon(Icons.receipt_long_rounded),
                   label: 'Riwayat',
                 ),
               ],
@@ -81,28 +92,6 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
         ),
       ),
-    );
-  }
-
-  BottomNavigationBarItem _buildNavItem({
-    required IconData icon,
-    required IconData activeIcon,
-    required String label,
-  }) {
-    return BottomNavigationBarItem(
-      icon: Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Icon(icon),
-      ),
-      activeIcon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        decoration: BoxDecoration(
-          color: primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(activeIcon),
-      ),
-      label: label,
     );
   }
 }

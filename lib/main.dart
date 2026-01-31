@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kasir Offline',
+      title: 'Kasir Kelontong',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: const MainNavigation(),

@@ -469,7 +469,11 @@ class _ProductPageState extends State<ProductPage> {
 
   Future<void> _pickImage(StateSetter setModal) async {
     final picker = ImagePicker();
-    final img = await picker.pickImage(source: ImageSource.camera, imageQuality: 70);
+   final img = await picker.pickImage(
+  source: ImageSource.gallery,
+  imageQuality: 70,
+);
+
     if (img != null) {
       final dir = await getApplicationDocumentsDirectory();
       final saved = await File(img.path).copy('${dir.path}/${p.basename(img.path)}');
