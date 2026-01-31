@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'pages/product_page.dart';
+import 'package:kasir_mudah/pages/cashier_page.dart';
+import 'package:kasir_mudah/pages/main_navigation.dart';
+import 'package:kasir_mudah/pages/product_page.dart';
+import 'package:kasir_mudah/pages/transaction_history.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Kasir Offline',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: const ProductPage(),
+      home: const MainNavigation(),
     );
   }
 }
