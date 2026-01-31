@@ -36,10 +36,28 @@ class StorageService {
     return '${dir.path}/categories.json';
   }
 
+  // Preload kategori default
+  static Future<void> initDefaultCategories() async {
+    final path = await _getCategoriesFilePath();
+    final file = File(path);
+
+    if (!file.existsSync()) {
+      await saveCategories([
+        "Makanan",
+        "Minuman",
+        "Snack",
+        
+      ]);
+    }
+  }
+
   static Future<List<String>> loadCategories() async {
     try {
       final path = await _getCategoriesFilePath();
-      if (!File(path).existsSync()) return [];
+      if (!File(path).existsSync()) {
+        // Kalau belum ada, langsung preload
+        await initDefaultCategories();
+      }
       final data = await File(path).readAsString();
       return (jsonDecode(data) as List).map((e) => e.toString()).toList();
     } catch (_) {
