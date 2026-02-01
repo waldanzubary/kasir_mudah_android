@@ -24,7 +24,7 @@ class ProfilePage extends StatelessWidget {
         surfaceTintColor: Colors.white,
         title: Text('Pengaturan',
             style: TextStyle(color: textDark, fontWeight: FontWeight.w900)),
-        centerTitle: true,
+        
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -226,7 +226,7 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 24),
             Icon(Icons.storefront_rounded, size: 60, color: primaryColor),
             const SizedBox(height: 16),
-            Text('Kasir Pintar v1.0', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: textDark)),
+            Text('Kasir Kelontong v1.0', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: textDark)),
             const SizedBox(height: 12),
             Text(
               'Aplikasi manajemen stok dan penjualan UMKM yang dirancang untuk kemudahan operasional harian Anda.',

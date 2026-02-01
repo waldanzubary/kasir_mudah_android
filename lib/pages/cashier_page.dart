@@ -93,7 +93,7 @@ class _CashierPageState extends State<CashierPage> {
     return AppBar(
       elevation: 0,
       backgroundColor: surfaceColor,
-      title: Text('Kasir Pintar', style: TextStyle(color: textDark, fontWeight: FontWeight.w900)),
+      title: Text('Kasir Kelontong', style: TextStyle(color: textDark, fontWeight: FontWeight.w900)),
       actions: [
         if (cart.isNotEmpty)
           IconButton(

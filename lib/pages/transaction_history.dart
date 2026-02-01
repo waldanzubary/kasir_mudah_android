@@ -29,7 +29,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
         elevation: 0,
         backgroundColor: surfaceColor,
         surfaceTintColor: surfaceColor,
-        centerTitle: true,
+        
         title: Text('Riwayat Transaksi', 
           style: TextStyle(color: textDark, fontWeight: FontWeight.w900, fontSize: 20)),
       ),
