@@ -16,6 +16,10 @@ dependencies:
   intl: ^0.19.0
   flutter_native_splash: ^2.4.0
   flutter_launcher_icons: ^0.13.1
+  csv: ^6.0.0
+  file_picker: ^8.0.0
+  share_plus: ^10.0.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

@@ -203,17 +203,42 @@ class _CashierPageState extends State<CashierPage> {
                 color: change >= 0 ? primaryColor : Colors.red),
             ],
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity, height: 55,
-              child: ElevatedButton(
-                onPressed: (total > 0 && change >= 0) ? _showSuccessDialog : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: textDark,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Text('PROSES TRANSAKSI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-            ),
+            // Cari bagian SizedBox di dalam _buildCheckoutPanel, lalu ganti dengan kode ini:
+
+SizedBox(
+  width: double.infinity, 
+  height: 55,
+  child: ElevatedButton(
+    // Logika OnPressed tetap sama
+    onPressed: (total > 0 && change >= 0) ? _showSuccessDialog : null,
+    style: ElevatedButton.styleFrom(
+      // WARNA AKTIF
+      backgroundColor: primaryColor,
+      // WARNA SAAT DISABLED (Biar tetap kelihatan tapi redup)
+      disabledBackgroundColor: primaryColor.withOpacity(0.12),
+      disabledForegroundColor: primaryColor.withOpacity(0.4),
+      elevation: (total > 0 && change >= 0) ? 2 : 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        // Tambahkan border tipis saat disabled agar bentuk tombol tetap jelas
+        side: BorderSide(
+          color: (total > 0 && change >= 0) 
+              ? Colors.transparent 
+              : primaryColor.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+    ),
+    child: Text(
+      'PROSES TRANSAKSI', 
+      style: TextStyle(
+        color: (total > 0 && change >= 0) ? Colors.white : primaryColor.withOpacity(0.4),
+        fontWeight: FontWeight.w900, // Gunakan heavier weight sesuai instruksi Anda
+        letterSpacing: 1.1,
+      ),
+    ),
+  ),
+),
           ],
         ),
       ),
@@ -401,7 +426,7 @@ Widget _placeholderImage() {
   void _openScanner() {
     isScanning = false;
     Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(
-      appBar: AppBar(title: const Text('Scan Barcode')),
+      appBar: AppBar(title: const Text('Scan Barcode', style: TextStyle(fontWeight: FontWeight.w900)), backgroundColor: primaryColor),
       body: MobileScanner(onDetect: (cap) {
         if (isScanning) return;
         final code = cap.barcodes.first.rawValue;

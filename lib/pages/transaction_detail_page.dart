@@ -2,18 +2,52 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
+import '../models/product.dart';
+import '../services/storage_service.dart';
 
-class TransactionDetailPage extends StatelessWidget {
+class TransactionDetailPage extends StatefulWidget {
   final TransactionModel trx;
 
   const TransactionDetailPage({super.key, required this.trx});
 
+  @override
+  State<TransactionDetailPage> createState() => _TransactionDetailPageState();
+}
+
+class _TransactionDetailPageState extends State<TransactionDetailPage> {
   // Modern Premium Palette
   final Color primaryColor = const Color(0xFF00AA5B);
   final Color surfaceColor = const Color(0xFFFFFFFF);
   final Color bgColor = const Color(0xFFF0F2F5);
   final Color textDark = const Color(0xFF1A1D1E);
   final Color textLight = const Color(0xFF94A3B8);
+
+  List<Product> allProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLatestProducts();
+  }
+
+  // Fungsi untuk mengambil data produk terbaru agar nama & gambar sinkron
+  Future<void> _loadLatestProducts() async {
+    final products = await StorageService.loadProducts();
+    if (mounted) {
+      setState(() {
+        allProducts = products;
+      });
+    }
+  }
+
+  // Mendapatkan data produk terbaru (termasuk path gambar terbaru)
+  Product? _getLatestProductData(String productId) {
+    try {
+      return allProducts.firstWhere((p) => p.id == productId);
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,15 +130,15 @@ class TransactionDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '#${trx.id}',
+            '#${widget.trx.id}',
             style: TextStyle(color: textLight, fontWeight: FontWeight.w600, fontSize: 13),
           ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _headerMeta(Icons.calendar_today_rounded, dFormat.format(trx.date)),
-              _headerMeta(Icons.access_time_rounded, tFormat.format(trx.date)),
+              _headerMeta(Icons.calendar_today_rounded, dFormat.format(widget.trx.date)),
+              _headerMeta(Icons.access_time_rounded, tFormat.format(widget.trx.date)),
             ],
           ),
         ],
@@ -133,34 +167,41 @@ class TransactionDetailPage extends StatelessWidget {
             style: TextStyle(color: textLight, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2),
           ),
           const SizedBox(height: 16),
-          ...trx.items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(
-                  children: [
-                    _buildItemImage(item.product.imagePath),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.product.name,
-                            style: TextStyle(color: textDark, fontWeight: FontWeight.w800, fontSize: 15),
-                          ),
-                          Text(
-                            'Rp ${NumberFormat("#,###").format(item.product.price)} x ${item.qty}',
-                            style: TextStyle(color: textLight, fontSize: 12, fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
+          ...widget.trx.items.map((item) {
+            // SINKRONISASI DATA TERBARU
+            final latestProd = _getLatestProductData(item.product.id);
+            String currentName = latestProd?.name ?? item.product.name;
+            String? currentPath = latestProd?.imagePath ?? item.product.imagePath;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  _buildItemImage(currentPath), // Mengirim path terbaru
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentName,
+                          style: TextStyle(color: textDark, fontWeight: FontWeight.w800, fontSize: 15),
+                        ),
+                        Text(
+                          'Rp ${NumberFormat("#,###").format(item.product.price)} x ${item.qty}',
+                          style: TextStyle(color: textLight, fontSize: 12, fontWeight: FontWeight.w500),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Rp ${NumberFormat("#,###").format(item.subtotal)}',
-                      style: TextStyle(color: textDark, fontWeight: FontWeight.w900, fontSize: 14),
-                    ),
-                  ],
-                ),
-              )),
+                  ),
+                  Text(
+                    'Rp ${NumberFormat("#,###").format(item.subtotal)}',
+                    style: TextStyle(color: textDark, fontWeight: FontWeight.w900, fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -177,7 +218,12 @@ class TransactionDetailPage extends StatelessWidget {
       child: path != null && File(path).existsSync()
           ? ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.file(File(path), fit: BoxFit.cover),
+              child: Image.file(
+                File(path),
+                fit: BoxFit.cover,
+                // KUNCI UTAMA: Memberikan Key agar Flutter mereload gambar jika path berubah
+                key: ValueKey(path + DateTime.now().minute.toString()), 
+              ),
             )
           : Icon(Icons.image_outlined, color: textLight.withOpacity(0.5), size: 20),
     );
@@ -188,11 +234,11 @@ class TransactionDetailPage extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          _summaryRow('Total Belanja', trx.total, isTotal: true),
+          _summaryRow('Total Belanja', widget.trx.total, isTotal: true),
           const SizedBox(height: 12),
-          _summaryRow('Bayar (Tunai)', trx.cash),
+          _summaryRow('Bayar (Tunai)', widget.trx.cash),
           const SizedBox(height: 8),
-          _summaryRow('Kembalian', trx.change, isHighlight: true),
+          _summaryRow('Kembalian', widget.trx.change, isHighlight: true),
         ],
       ),
     );
