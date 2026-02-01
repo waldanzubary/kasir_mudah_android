@@ -81,6 +81,7 @@ class _CashierPageState extends State<CashierPage> {
       body: Column(
         children: [
           _buildScannerTrigger(),
+          const SizedBox(height: 12),
           Expanded(child: _buildCartSection()),
           _buildCheckoutPanel(),
         ],

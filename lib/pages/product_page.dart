@@ -5,7 +5,6 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-// Pastikan import ini sesuai dengan struktur project Anda
 import '../models/product.dart';
 import '../services/storage_service.dart';
 
@@ -30,7 +29,6 @@ class _ProductPageState extends State<ProductPage> {
   String filterCategory = '';
   bool isScanning = false;
 
-  // Modern Color Palette
   final Color primaryColor = const Color(0xFF00AA5B); 
   final Color surfaceColor = const Color(0xFFFFFFFF);
   final Color bgColor = const Color(0xFFF7F9FA);
@@ -50,16 +48,12 @@ class _ProductPageState extends State<ProductPage> {
 
   Future<void> loadProducts() async {
     final data = await StorageService.loadProducts();
-    if (mounted) {
-      setState(() => products = data);
-    }
+    if (mounted) setState(() => products = data);
   }
 
   Future<void> loadCategories() async {
     final data = await StorageService.loadCategories();
-    if (mounted) {
-      setState(() => categories = data);
-    }
+    if (mounted) setState(() => categories = data);
   }
 
   // ================= LOGIC FUNCTIONS =================
@@ -83,16 +77,23 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _showToast(String msg, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
-        backgroundColor: isError ? Colors.redAccent : textDark,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
+  // Hapus snackbar yang sedang tampil agar yang baru langsung muncul
+  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        msg, 
+        style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white)
       ),
-    );
-  }
+      backgroundColor: isError ? Colors.redAccent : textDark,
+      behavior: SnackBarBehavior.floating, // Wajib agar tidak tertutup navigasi bawah
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20), // Beri jarak dari bawah
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
 
   // ================= UI BUILDERS =================
 
@@ -128,16 +129,15 @@ class _ProductPageState extends State<ProductPage> {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
         title: Text('Katalog Produk', 
-          style: TextStyle(color: textDark, fontWeight: FontWeight.w900, fontSize: 22)),
+          style: TextStyle(color: textDark, fontWeight: FontWeight.w900, fontSize: 20)),
       ),
     );
   }
 
   Widget _buildCategoryFilter() {
     return SliverToBoxAdapter(
-      child: Container(
+      child: SizedBox(
         height: 50,
-        margin: const EdgeInsets.symmetric(vertical: 12),
         child: ListView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -164,7 +164,6 @@ class _ProductPageState extends State<ProductPage> {
         selectedColor: primaryColor,
         backgroundColor: Colors.white,
         elevation: 0,
-        pressElevation: 0,
         labelStyle: TextStyle(
           color: active ? Colors.white : textLight, 
           fontWeight: active ? FontWeight.w800 : FontWeight.w500,
@@ -197,11 +196,7 @@ class _ProductPageState extends State<ProductPage> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04), 
-            blurRadius: 20, 
-            offset: const Offset(0, 8)
-          )
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 8))
         ],
       ),
       child: Material(
@@ -209,34 +204,30 @@ class _ProductPageState extends State<ProductPage> {
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () => _openEditProduct(p),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                _buildProductImage(p.imagePath),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(p.category.toUpperCase(), 
-                          style: TextStyle(color: primaryColor, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
-                        const SizedBox(height: 4),
-                        Text(p.name, style: TextStyle(color: textDark, fontWeight: FontWeight.w800, fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text('Rp ${p.price}', 
-                          style: TextStyle(color: textDark, fontWeight: FontWeight.w600, fontSize: 14)),
-                      ],
-                    ),
+          child: Row(
+            children: [
+              _buildProductImage(p.imagePath),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(p.category.toUpperCase(), 
+                        style: TextStyle(color: primaryColor, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
+                      const SizedBox(height: 4),
+                      Text(p.name, style: TextStyle(color: textDark, fontWeight: FontWeight.w800, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      Text('Rp ${p.price}', style: TextStyle(color: textDark, fontWeight: FontWeight.w600)),
+                    ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => _showActionMenu(p),
-                  icon: Icon(Icons.more_vert_rounded, color: textLight.withOpacity(0.6)),
-                ),
-                _buildBarcodeBadge(p.barcode),
-              ],
-            ),
+              ),
+              IconButton(
+                onPressed: () => _showActionMenu(p),
+                icon: Icon(Icons.more_vert_rounded, color: textLight.withOpacity(0.5)),
+              ),
+            ],
           ),
         ),
       ),
@@ -244,50 +235,40 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Widget _buildProductImage(String path) {
+    bool hasImage = path.isNotEmpty && File(path).existsSync();
+
     return Container(
-      width: 85, height: 85,
+      width: 80, height: 80,
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: bgColor, 
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
       ),
-      child: path.isNotEmpty && File(path).existsSync()
+      child: hasImage
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(16), 
+              borderRadius: BorderRadius.circular(16),
               child: Image.file(
-                File(path), 
+                File(path),
                 fit: BoxFit.cover,
-                key: ValueKey(path), // Mencegah caching gambar lama
-              ))
-          : Icon(Icons.inventory_2_rounded, color: Colors.grey.shade300, size: 28),
+                key: ValueKey(path),
+                errorBuilder: (_, __, ___) => _buildIconPlaceholder(),
+              ),
+            )
+          : _buildIconPlaceholder(),
     );
   }
 
-  Widget _buildBarcodeBadge(String code) {
-    return Container(
-      width: 35,
-      decoration: BoxDecoration(
-        color: bgColor.withOpacity(0.6),
-        borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
-      ),
-      child: RotatedBox(
-        quarterTurns: 1,
-        child: Center(
-          child: Text(code, 
-            style: TextStyle(fontSize: 8, color: textLight.withOpacity(0.5), fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-        ),
-      ),
-    );
+  Widget _buildIconPlaceholder() {
+    return Center(child: Icon(Icons.inventory_2_rounded, color: Colors.grey.shade300, size: 28));
   }
 
   Widget _buildFAB() {
     return FloatingActionButton.extended(
       onPressed: _showScanBarcode,
       backgroundColor: primaryColor,
-      elevation: 4,
-      icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
-      label: const Text('TAMBAH PRODUK', 
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+      icon: const Icon(Icons.add_rounded, color: Colors.white),
+      label: const Text('TAMBAH PRODUK', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     );
   }
@@ -299,17 +280,14 @@ class _ProductPageState extends State<ProductPage> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-        ),
+        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10))),
             const SizedBox(height: 20),
-            Text(p.name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: textDark)),
+            Text(p.name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
             const SizedBox(height: 20),
             _buildActionItem(Icons.edit_rounded, 'Edit Produk', Colors.blue, () {
               Navigator.pop(context);
@@ -320,7 +298,6 @@ class _ProductPageState extends State<ProductPage> {
               final confirm = await _confirmDelete();
               if (confirm) _deleteProduct(p.id);
             }),
-            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -335,7 +312,7 @@ class _ProductPageState extends State<ProductPage> {
         decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
         child: Icon(icon, color: color),
       ),
-      title: Text(label, style: TextStyle(fontWeight: FontWeight.w700, color: textDark)),
+      title: Text(label, style: TextStyle(fontWeight: FontWeight.w700)),
     );
   }
 
@@ -368,7 +345,6 @@ class _ProductPageState extends State<ProductPage> {
     final existing = products.where((p) => p.barcode == code).toList();
     if (existing.isNotEmpty) {
       _openEditProduct(existing.first);
-      _showToast("Produk ditemukan!");
       return;
     }
     nameCtrl.clear(); priceCtrl.clear(); imagePath = '';
@@ -403,15 +379,19 @@ class _ProductPageState extends State<ProductPage> {
                       color: bgColor, borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.grey.shade100),
                     ),
-                    child: imagePath.isEmpty
-                        ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.camera_alt_rounded, color: primaryColor, size: 40), const SizedBox(height: 8), Text('Ketuk untuk Foto', style: TextStyle(color: textLight, fontWeight: FontWeight.w700))])
-                        : ClipRRect(
+                    child: (imagePath.isNotEmpty && File(imagePath).existsSync())
+                        ? ClipRRect(
                             borderRadius: BorderRadius.circular(24), 
-                            child: Image.file(
-                              File(imagePath), 
-                              fit: BoxFit.cover,
-                              key: ValueKey(imagePath),
-                            )),
+                            child: Image.file(File(imagePath), fit: BoxFit.cover, key: ValueKey(imagePath)),
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center, 
+                            children: [
+                              Icon(Icons.camera_alt_rounded, color: primaryColor, size: 40),
+                              const SizedBox(height: 8),
+                              Text('Ketuk untuk Foto', style: TextStyle(color: textLight, fontWeight: FontWeight.w700))
+                            ],
+                          ),
                   ),
                 ),
                 
@@ -440,7 +420,7 @@ class _ProductPageState extends State<ProductPage> {
                       elevation: 0,
                     ),
                     child: Text(isEdit ? 'SIMPAN PERUBAHAN' : 'KONFIRMASI & SIMPAN', 
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
                   ),
                 )
               ],
@@ -450,8 +430,6 @@ class _ProductPageState extends State<ProductPage> {
       ),
     );
   }
-
-  // ================= HELPERS & PROCESSORS =================
 
   void _saveProcess(bool isEdit, String? productId) async {
     if (nameCtrl.text.isEmpty || priceCtrl.text.isEmpty || selectedCategory.isEmpty) {
@@ -478,35 +456,9 @@ class _ProductPageState extends State<ProductPage> {
     });
 
     await StorageService.saveProducts(products);
-    
-    // Tutup modal dulu baru clear form
     if (mounted) Navigator.pop(context);
-    
-    nameCtrl.clear(); 
-    priceCtrl.clear(); 
-    imagePath = '';
-    
-    _initData(); // Refresh data dari storage untuk sinkronisasi
+    _initData();
     _showToast(isEdit ? "Produk diperbarui" : "Produk berhasil disimpan");
-  }
-
-  Future<bool> _confirmDelete() async {
-    return await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Hapus Produk?', style: TextStyle(fontWeight: FontWeight.w900)),
-        content: const Text('Data produk ini akan dihapus permanen dari katalog.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Batal', style: TextStyle(color: textLight, fontWeight: FontWeight.w700))),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true), 
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            child: const Text('Hapus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    ) ?? false;
   }
 
   InputDecoration _inputDeco(String hint, IconData icon) {
@@ -527,7 +479,7 @@ class _ProductPageState extends State<ProductPage> {
       child: Row(children: [
         Icon(Icons.qr_code_2_rounded, color: primaryColor), 
         const SizedBox(width: 12), 
-        Text('Barcode: $scannedBarcode', style: TextStyle(fontWeight: FontWeight.w900, color: primaryColor, letterSpacing: 1))
+        Text('Barcode: $scannedBarcode', style: TextStyle(fontWeight: FontWeight.w900, color: primaryColor))
       ]),
     );
   }
@@ -537,14 +489,30 @@ class _ProductPageState extends State<ProductPage> {
     final img = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (img != null) {
       final dir = await getApplicationDocumentsDirectory();
-      final fileName = "${DateTime.now().millisecondsSinceEpoch}_${p.basename(img.path)}";
+      final fileName = "IMG_${DateTime.now().millisecondsSinceEpoch}.jpg";
       final saved = await File(img.path).copy('${dir.path}/$fileName');
-      
-      // Update state di dalam modal
       setModal(() => imagePath = saved.path);
-      // Update state utama (untuk jaga-jaga)
       setState(() => imagePath = saved.path);
     }
+  }
+
+  Future<bool> _confirmDelete() async {
+    return await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Hapus Produk?', style: TextStyle(fontWeight: FontWeight.w900)),
+        content: const Text('Data produk ini akan dihapus permanen.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true), 
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   void _showAddCategoryDialog() {
@@ -555,11 +523,11 @@ class _ProductPageState extends State<ProductPage> {
         title: const Text('Kategori Baru', style: TextStyle(fontWeight: FontWeight.w900)),
         content: TextField(controller: categoryCtrl, decoration: _inputDeco('Contoh: Minuman', Icons.category_rounded)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Batal', style: TextStyle(color: textLight, fontWeight: FontWeight.w700))),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
           ElevatedButton(
             onPressed: () { _addCategory(categoryCtrl.text); Navigator.pop(ctx); },
-            style: ElevatedButton.styleFrom(backgroundColor: textDark, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-            child: const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(backgroundColor: textDark),
+            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -574,7 +542,7 @@ class _ProductPageState extends State<ProductPage> {
           children: [
             Icon(Icons.inventory_2_outlined, size: 70, color: Colors.grey.shade200),
             const SizedBox(height: 16),
-            Text('Katalog kosong di kategori ini', style: TextStyle(color: textLight, fontWeight: FontWeight.w700)),
+            Text('Katalog kosong', style: TextStyle(color: textLight, fontWeight: FontWeight.w700)),
           ],
         ),
       ),
