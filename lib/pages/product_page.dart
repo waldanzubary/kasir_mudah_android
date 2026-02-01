@@ -276,33 +276,180 @@ class _ProductPageState extends State<ProductPage> {
   // ================= MODALS & ACTIONS =================
 
   void _showActionMenu(Product p) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10))),
-            const SizedBox(height: 20),
-            Text(p.name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-            const SizedBox(height: 20),
-            _buildActionItem(Icons.edit_rounded, 'Edit Produk', Colors.blue, () {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withOpacity(0.5),
+    isScrollControlled: true,
+    builder: (context) => Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(35)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          )
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle Bar
+          Container(
+            width: 50,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(height: 25),
+          
+          // Header Info Produk (Tanpa Divider di bawahnya)
+          Row(
+            children: [
+              _buildProductImageSmall(p.imagePath),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      p.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900, 
+                        fontSize: 20, 
+                        color: textDark,
+                        letterSpacing: -0.5
+                      ),
+                    ),
+                    Text(
+                      'Rp ${p.price}',
+                      style: TextStyle(
+                        color: primaryColor, 
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          // Jarak pengganti Divider agar tidak terlalu rapat
+          const SizedBox(height: 20),
+
+          // Menu Aksi
+          _buildModernActionItem(
+            icon: Icons.edit_note_rounded,
+            label: 'Ubah Data Produk',
+            subtitle: 'Edit nama, harga, atau foto produk',
+            color: Colors.blue.shade700,
+            onTap: () {
               Navigator.pop(context);
               _openEditProduct(p);
-            }),
-            _buildActionItem(Icons.delete_outline_rounded, 'Hapus Produk', Colors.redAccent, () async {
+            },
+          ),
+          
+          const SizedBox(height: 12), // Spasi antar menu
+          
+          _buildModernActionItem(
+            icon: Icons.delete_sweep_rounded,
+            label: 'Hapus dari Katalog',
+            subtitle: 'Data akan dihapus secara permanen',
+            color: Colors.redAccent,
+            onTap: () async {
               Navigator.pop(context);
               final confirm = await _confirmDelete();
               if (confirm) _deleteProduct(p.id);
-            }),
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// Widget pendukung untuk icon yang lebih cantik
+Widget _buildModernActionItem({
+  required IconData icon,
+  required String label,
+  required String subtitle,
+  required Color color,
+  required VoidCallback onTap,
+}) {
+  return Material(
+    color: Colors.transparent,
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      highlightColor: color.withOpacity(0.05),
+      splashColor: color.withOpacity(0.1),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(icon, color: color, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900, 
+                      color: textDark, 
+                      fontSize: 15
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: textLight, 
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: Colors.grey.shade300),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+// Preview gambar kecil di header modal
+Widget _buildProductImageSmall(String path) {
+  return Container(
+    width: 50,
+    height: 50,
+    decoration: BoxDecoration(
+      color: bgColor,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: (path.isNotEmpty && File(path).existsSync())
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(File(path), fit: BoxFit.cover),
+          )
+        : Icon(Icons.inventory_2_rounded, color: Colors.grey.shade300, size: 20),
+  );
+}
 
   Widget _buildActionItem(IconData icon, String label, Color color, VoidCallback onTap) {
     return ListTile(
